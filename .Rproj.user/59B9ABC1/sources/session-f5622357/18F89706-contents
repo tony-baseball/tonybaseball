@@ -1,0 +1,8 @@
+library(dplyr)
+db <- RSQLite::dbConnect(RSQLite::SQLite(), 'C:/Users/tdmed/OneDrive/_Shiny/FLASH/flashdb.sqlite')
+max_date <- RSQLite::dbGetQuery(db, 'SELECT max(Date) as date from yak_24')$date
+team_info <- RSQLite::dbGetQuery(db, 'SELECT * FROM teams')
+
+data <- tonybaseball::db_to_bats(date = '2024-05-10')
+
+
