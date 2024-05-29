@@ -53,59 +53,6 @@ db_to_bats <- function(date) {
   return(df)
 }
 
-#' Convert Latest Boomers game to BATS format
-#'
-#' This function makes a lot of transformations to the Yakkertech file and transforms it into a standard Trackman format that is compatible with BATS Trackman Merge
-#'
-#' @param date in a %Y-%m-%d format.
-#' @return The final dataframe.
-#' @examples
-#' db_to_bats('2024-05-10')
-#'
-#' @export
-db_to_bats <- function(date) {
-  query <- paste0("SELECT * FROM yak_24 WHERE Date = :date
-                  and (HomeTeamCode = 'BOOM' or AwayTeamCode = 'BOOM')")
-
-  df <- RSQLite::dbGetQuery(db, query, params = list(date = max_date)) %>%
-    dplyr::rename(PitchNo = 1) %>%
-    dplyr::mutate(Date = as.Date(Date),
-                  Batter = stringr::str_to_title(Batter),
-                  Pitcher = stringr::str_to_title(Pitcher),
-                  Batter = stringr::str_replace_all(Batter, c("DepretaJohnson" = "Depreta-Johnson",
-                                                              "Depreta-johnson" = "Depreta-Johnson",
-                                                              "Depretajohnson" = "Depreta-Johnson")),
-                  Batter = paste0(sub("^[^ ]* ", "", Batter), ", ", sub(" .*", "", Batter)),
-                  Pitcher = paste0(sub("^[^ ]* ", "", Pitcher), ", ", sub(" .*", "", Pitcher)),
-                  Catcher = paste0(sub("^[^ ]* ", "", Catcher), ", ", sub(" .*", "", Catcher))
-    )   %>%
-    dplyr:: mutate(BatterTeam = team_info$bats_team_code[match(BatterTeam, team_info$team_FL)],
-                   PitcherTeam = team_info$bats_team_code[match(PitcherTeam, team_info$team_FL)],
-                   HomeTeam = team_info$bats_team_code[match(HomeTeam, team_info$team_FL)],
-                   AwayTeam = team_info$bats_team_code[match(AwayTeam, team_info$team_FL)],
-                   CatcherTeam = team_info$bats_team_code[match(CatcherTeam, team_info$team_FL)] ,
-                   Time = ifelse(RelSpeed =="", paste(""),
-                                 Time),
-                   PitchCall = gsub("Foul", "FoulBall", PitchCall),
-                   TaggedPitchType = gsub("Changeup", "ChangeUp", TaggedPitchType) )%>%
-    dplyr::relocate(Catcher, .after = PitchUUID) %>%
-    dplyr::relocate(CatcherId, .after = Catcher) %>%
-    dplyr::relocate(CatcherTeam, .after = CatcherId) %>%
-    dplyr::select(-c(PitchClass, HitDirection1, HitDirection2, hc_x, hc_y, launch_speed, launch_angle, hardhit, weakhit,
-                     whiff, swing, take, in_zone,zone_x, zone_y, filter_col, barrel, HomeTeamCode, AwayTeamCode, Code,
-                     yt_RelSpeed, yt_RelHeight, yt_RelSide, yt_VertRelAngle, yt_HorzRelAngle, yt_ZoneSpeed,  yt_ZoneTime, yt_HorzBreak,
-                     yt_InducedVertBreak, yt_OutOfPlane, yt_FSRI, yt_EffectiveSpin, yt_GyroSpin, yt_Efficiency, yt_HorzApprAngle, yt_PlateLocHeight,
-                     yt_SpinComponentX, yt_SpinComponentY, yt_SpinComponentZ,  yt_HitVelocityX, yt_HitVelocityY, yt_HitVelocityZ, yt_HitLocationX,
-                     yt_HitLocationY, yt_HitLocationZ, yt_GroundLocationX, yt_GroundLocationY,  yt_HitBreakX, yt_HitBreakY, yt_HitBreakT,
-                     yt_HitSpinComponentX,  yt_HitSpinComponentY, yt_HitSpinComponentZ, yt_SessionName,  yt_PitchSpinConfidence, yt_PitchReleaseConfidence,
-                     yt_HitSpinConfidence, yt_EffectiveBattingSpeed, yt_ReleaseAccuracy, yt_ZoneAccuracy, yt_SeamLat, yt_SeamLong, yt_ReleaseDistance,
-                     yt_AeroModel, yt_PlateLocSide, yt_VertApprAngle, Umpire, SEASON, xBA, x1B,
-                     x2B, x3B, xHR, xOut, xSLG, woba_weight, xwOBACON, Note
-    ))
-
-  return(df)
-}
-
 
 
 #' Predict AutoTaggedPitchType
