@@ -120,11 +120,6 @@ db_to_bats <- function(date) {
 #' @export
 predict_pitch_type <- function(data) {
 
-  lh_fb <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/knnModel_LHFB.rds")
-  rh_fb <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/knnModel_RHFB.rds")
-  lh_bb <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/knnModel_LHBB.rds")
-  rh_bb <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/knnModel_RHBB.rds")
-  # input
 
   filtered_data <- data %>%
     dplyr::filter(!is.na(InducedVertBreak) &
@@ -198,12 +193,7 @@ yt_clean_team_names <- function(data) {
 #'
 #' @export
 
-# usethis::use_data(model_1B, model_2B, model_3B, model_HR, xBA_model, internal = T, overwrite = T)
-# model_1B <- readRDS(system.file("extdata", "model_1B.rds", package = "tonybaseball"))
-# model_2B <- readRDS(system.file("extdata", "model_2B.rds", package = "tonybaseball"))
-# model_3B <- readRDS(system.file("extdata", "model_3B.rds", package = "tonybaseball"))
-# model_HR <- readRDS(system.file("extdata", "model_HR.rds", package = "tonybaseball"))
-# xBA_model <- readRDS(system.file("extdata", "xBA_model.rds", package = "tonybaseball"))
+
 
 xStats_yak <- function(data) {
 
@@ -593,3 +583,18 @@ pitcher_pitch_metrics <- function(data) {
   return(table)
 
 }
+
+# MODELS ----
+lh_fb <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/knnModel_LHFB.rds")
+rh_fb <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/knnModel_RHFB.rds")
+lh_bb <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/knnModel_LHBB.rds")
+rh_bb <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/knnModel_RHBB.rds")
+# input
+usethis::use_data(lh_fb, rh_fb, lh_bb, rh_bb,  internal = T, overwrite = T )
+
+model_1B <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/model_1B.rds")
+model_2B <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/model_2B.rds")
+model_3B <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/model_3B.rds")
+model_HR <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/model_HR.rds")
+xBA_model <- readRDS(file = "C:/Users/tdmed/OneDrive/R_Codes/MLB_Modeling/xBA_model.rds")
+usethis::use_data(model_1B, model_2B, model_3B, model_HR, xBA_model, internal = T, overwrite = T)
