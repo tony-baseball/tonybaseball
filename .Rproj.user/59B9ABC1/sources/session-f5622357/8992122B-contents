@@ -291,7 +291,16 @@ yt_transform_file <- function(data) {
       launch_speed = round(ExitSpeed),
       launch_angle = round(Angle),
       hardhit = ifelse(ExitSpeed >= 95 & PitchCall == 'InPlay', 1, 0),
+      hardhit = case_when(
+        PitchCall == 'InPlay' & ExitSpeed >= 95 ~ 1,
+        PitchCall == 'InPlay' & ExitSpeed < 95 ~ 0,
+        T ~ NA
+      ),
       weakhit = ifelse(ExitSpeed < 80 & PitchCall == 'InPlay', 1, 0),
+      weakhit = case_when(
+        PitchCall == 'InPlay' & ExitSpeed < 85 ~ 1,
+        T ~ NA
+      ),
       whiff = ifelse(PitchCall == 'StrikeSwinging', 1,0),
       swing = ifelse(PitchCall %in% c('StrikeSwinging', 'InPlay', 'FoulBall', 'Foul', 'FoulTip'),1,0),
       take = ifelse(PitchCall %in% c('StrikeCalled','BallCalled'),1,0),
