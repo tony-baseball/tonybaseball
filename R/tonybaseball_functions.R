@@ -87,6 +87,32 @@ predict_pitch_type <- function(data) {
   return(data)
 }
 
+#' Predict AutoTaggedPitchType
+#'
+#' This function predicts FL pitch types based on baseball savant classifications
+#'
+#' @param data, require InducedVertBreak, HorzBreak, SpinRate, SpinAxis, and PitchUUID to NOT be NA
+#' @return The final dataframe.
+#' @examples
+#' db_to_bats('2024-05-10')
+#'
+#' @export
+predict_pitch_type_ez <- function(data) {
+
+
+  data <- data %>% dplyr::mutate(AutoPitchType = case_when(
+      PitcherThrows == "Right" & TaggedPitchType %in% c("Fastball", "Sinker") ~ predict(rh_fb, .),
+      PitcherThrows == "Left" & TaggedPitchType %in% c("Fastball", "Sinker") ~ predict(lh_fb, .),
+      PitcherThrows == "Right" & TaggedPitchType %in% c("Curveball", "Slider", "Cutter")  ~ predict(rh_bb, .),
+      PitcherThrows == "Left" & TaggedPitchType %in% c("Curveball", "Slider", "Cutter")  ~ predict(lh_bb, .),
+      TRUE ~ TaggedPitchType
+    ))
+
+  # data$AutoPitchType <- filtered_data$AutoPitchType[match(data$PitchUUID, filtered_data$PitchUUID)]
+  data$AutoPitchType <- ifelse(is.na(data$AutoPitchType), data$TaggedPitchType, data$AutoPitchType)
+  return(data)
+}
+
 
 #' Clean Team Names across BAtterTeam,PitcherTeam,CatcherTeam,HomeTeam,AwayTeam
 #'
