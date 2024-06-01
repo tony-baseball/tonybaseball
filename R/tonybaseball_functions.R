@@ -38,17 +38,35 @@ db_to_bats <- function(date) {
     dplyr::relocate(Catcher, .after = PitchUUID) %>%
     dplyr::relocate(CatcherId, .after = Catcher) %>%
     dplyr::relocate(CatcherTeam, .after = CatcherId) %>%
-    dplyr::select(-c(PitchClass, HitDirection1, HitDirection2, hc_x, hc_y, launch_speed, launch_angle, hardhit, weakhit,
-                     whiff, swing, take, in_zone,zone_x, zone_y, filter_col, barrel, HomeTeamCode, AwayTeamCode, Code,
-                     yt_RelSpeed, yt_RelHeight, yt_RelSide, yt_VertRelAngle, yt_HorzRelAngle, yt_ZoneSpeed,  yt_ZoneTime, yt_HorzBreak,
-                     yt_InducedVertBreak, yt_OutOfPlane, yt_FSRI, yt_EffectiveSpin, yt_GyroSpin, yt_Efficiency, yt_HorzApprAngle, yt_PlateLocHeight,
-                     yt_SpinComponentX, yt_SpinComponentY, yt_SpinComponentZ,  yt_HitVelocityX, yt_HitVelocityY, yt_HitVelocityZ, yt_HitLocationX,
-                     yt_HitLocationY, yt_HitLocationZ, yt_GroundLocationX, yt_GroundLocationY,  yt_HitBreakX, yt_HitBreakY, yt_HitBreakT,
-                     yt_HitSpinComponentX,  yt_HitSpinComponentY, yt_HitSpinComponentZ, yt_SessionName,  yt_PitchSpinConfidence, yt_PitchReleaseConfidence,
-                     yt_HitSpinConfidence, yt_EffectiveBattingSpeed, yt_ReleaseAccuracy, yt_ZoneAccuracy, yt_SeamLat, yt_SeamLong, yt_ReleaseDistance,
-                     yt_AeroModel, yt_PlateLocSide, yt_VertApprAngle, Umpire, SEASON, xBA, x1B,
-                     x2B, x3B, xHR, xOut, xSLG, woba_weight, xwOBACON, Note
-    ))
+    # dplyr::select(-c(PitchClass, HitDirection1, HitDirection2, hc_x, hc_y, launch_speed, launch_angle, hardhit, weakhit,
+    #                  whiff, swing, take, in_zone,zone_x, zone_y, filter_col, barrel, HomeTeamCode, AwayTeamCode, Code,
+    #                  yt_RelSpeed, yt_RelHeight, yt_RelSide, yt_VertRelAngle, yt_HorzRelAngle, yt_ZoneSpeed,  yt_ZoneTime, yt_HorzBreak,
+    #                  yt_InducedVertBreak, yt_OutOfPlane, yt_FSRI, yt_EffectiveSpin, yt_GyroSpin, yt_Efficiency, yt_HorzApprAngle, yt_PlateLocHeight,
+    #                  yt_SpinComponentX, yt_SpinComponentY, yt_SpinComponentZ,  yt_HitVelocityX, yt_HitVelocityY, yt_HitVelocityZ, yt_HitLocationX,
+    #                  yt_HitLocationY, yt_HitLocationZ, yt_GroundLocationX, yt_GroundLocationY,  yt_HitBreakX, yt_HitBreakY, yt_HitBreakT,
+    #                  yt_HitSpinComponentX,  yt_HitSpinComponentY, yt_HitSpinComponentZ, yt_SessionName,  yt_PitchSpinConfidence, yt_PitchReleaseConfidence,
+    #                  yt_HitSpinConfidence, yt_EffectiveBattingSpeed, yt_ReleaseAccuracy, yt_ZoneAccuracy, yt_SeamLat, yt_SeamLong, yt_ReleaseDistance,
+    #                  yt_AeroModel, yt_PlateLocSide, yt_VertApprAngle, Umpire, SEASON, xBA, x1B,
+    #                  x2B, x3B, xHR, xOut, xSLG, woba_weight, xwOBACON, Note
+    # )
+    # )
+  dplyr::select("PitchNo", "Date", "Time", "PAofInning", "PitchofPA", "Pitcher",
+                "PitcherId", "PitcherThrows", "PitcherTeam", "Batter", "BatterId",
+                "BatterSide", "BatterTeam", "PitcherSet", "Inning", "Top.Bottom",
+                "Outs", "Balls", "Strikes", "TaggedPitchType", "AutoPitchType",
+                "PitchCall", "KorBB", "HitType", "PlayResult", "OutsOnPlay",
+                "RunsScored", "Notes", "RelSpeed", "VertRelAngle", "HorzRelAngle",
+                "SpinRate", "SpinAxis", "Tilt", "RelHeight", "RelSide", "Extension",
+                "VertBreak", "InducedVertBreak", "HorzBreak", "PlateLocHeight",
+                "PlateLocSide", "ZoneSpeed", "VertApprAngle", "HorzApprAngle",
+                "ZoneTime", "ExitSpeed", "Angle", "Direction", "HitSpinRate",
+                "PositionAt110X", "PositionAt110Y", "PositionAt110Z", "Distance",
+                "LastTrackedDistance", "Bearing", "HangTime", "pfxx", "pfxz",
+                "x0", "y0", "z0", "vx0", "vy0", "vz0", "ax0", "ay0", "az0", "HomeTeam",
+                "AwayTeam", "Stadium", "Level", "League", "GameID", "PitchUUID",
+                "Catcher", "CatcherId", "CatcherTeam"
+
+  )
 
   return(df)
 }
@@ -165,9 +183,6 @@ yt_clean_team_names <- function(data) {
 #' db_to_bats('2024-05-10')
 #'
 #' @export
-
-
-
 xStats_yak <- function(data) {
 
 
@@ -176,19 +191,19 @@ xStats_yak <- function(data) {
   data <- data %>%
     mutate(
       xBA = ifelse(
-        PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), round(predict(xBA_model, newdata = data, type = "response"),6),
+        PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), round(mgcv::predict.gam(xBA_model, newdata = data, type = "response"),6),
         NA),
       x1B = ifelse(
-        PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), round(predict(model_1B, newdata = data, type = "response"),6),
+        PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), round(mgcv::predict.gam(model_1B, newdata = data, type = "response"),6),
         NA),
       x2B = ifelse(
-        PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), round(predict(model_2B, newdata = data, type = "response"),6),
+        PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), round(mgcv::predict.gam(model_2B, newdata = data, type = "response"),6),
         NA),
       x3B = ifelse(
-        PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), round(predict(model_3B, newdata = data, type = "response"),6),
+        PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), round(mgcv::predict.gam(model_3B, newdata = data, type = "response"),6),
         NA),
       xHR = ifelse(
-        PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), round(predict(model_HR, newdata = data, type = "response"),6),
+        PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), round(mgcv::predict.gam(model_HR, newdata = data, type = "response"),6),
         NA),
       xOut = 1 - (x1B + x2B + x3B + xHR),
       xSLG = round(x1B + (x2B * 2) + (x3B * 3) + (xHR * 4),6),
@@ -208,14 +223,18 @@ xStats_yak <- function(data) {
         PitchCall == 'InPlay' & between(Angle,0,8) ~ 'Burner',
         PitchCall == 'InPlay' & Angle < 0 ~ 'Topped',
         T ~ NA),
-      bbe = ifelse(PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), 1, 0)
-
+      bbe = #ifelse(PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle), 1, 0)
+        case_when(
+          PitchCall == 'InPlay' & !is.na(ExitSpeed) & !is.na(Angle) ~ 1,
+          PitchCall == 'InPlay' & is.na(ExitSpeed) & is.na(Angle) ~ 0,
+          PitchCall != 'InPlay' ~ NA,
+          T ~ NA
+        )
     )
 
 
   return(data)
 }
-
 
 
 #' transform yt file for db use
@@ -263,13 +282,13 @@ yt_transform_file <- function(data) {
       Pitcher = stringr::str_squish(Pitcher),
       launch_speed = round(ExitSpeed),
       launch_angle = round(Angle),
-      hardhit = ifelse(ExitSpeed >= 95 & PitchCall == 'InPlay', 1, 0),
+      #hardhit = ifelse(ExitSpeed >= 95 & PitchCall == 'InPlay', 1, 0),
       hardhit = case_when(
         PitchCall == 'InPlay' & ExitSpeed >= 95 ~ 1,
         PitchCall == 'InPlay' & ExitSpeed < 95 ~ 0,
         T ~ NA
       ),
-      weakhit = ifelse(ExitSpeed < 80 & PitchCall == 'InPlay', 1, 0),
+     # weakhit = ifelse(ExitSpeed < 80 & PitchCall == 'InPlay', 1, 0),
       weakhit = case_when(
         PitchCall == 'InPlay' & ExitSpeed < 85 ~ 1,
         T ~ NA
@@ -447,11 +466,13 @@ yt_transform_file <- function(data) {
                  "Nico O'donnell" = "Nico O'Donnell",
                  'Deluca' = 'DeLuca',
                  'N. Gotta' = 'Nick Gotta',
-                 'Braedon Allemann' = 'Braeden Allemann'
+                 'Braedon Allemann' = 'Braeden Allemann',
+                 'Jr Heavilin' = 'JR Heavilin'
                )
              )
       ),
       Pitcher = gsub('C.mcaninch','Cal Mcaninch', Pitcher),
+      Batter = gsub('Mark Herron, Jr..','Mark Herron, Jr.', Batter),
       Pitcher = gsub('A.husson', 'Aaron Husson', Pitcher),
       Pitcher = gsub('Austin Gossmannn', 'Austin Gossmann', Pitcher),
       PitcherThrows = ifelse(Pitcher == 'Carlos Sano', 'Right', PitcherThrows),
@@ -469,7 +490,18 @@ yt_transform_file <- function(data) {
         T ~ PitcherTeam
       )
     ) %>%
-    dplyr::mutate(SpinRate = as.numeric(SpinRate)) %>%
+    dplyr::mutate(SpinRate = as.numeric(SpinRate),
+                  SpinAxis_inferred = atan2(InducedVertBreak, HorzBreak) * (180/ pi) + 180,
+                  Tilt_inferred = case_when(
+                    between(SpinAxis_inferred, 0, 180) ~ SpinAxis_inferred / 30 + 6,
+                    between(SpinAxis_inferred, 180, 360) ~ SpinAxis_inferred / 30 - 6
+                  ),
+                  Tilt_inferred = paste0(
+                    ifelse(floor(Tilt_inferred) == 0, 12, floor(Tilt_inferred)),
+                    ":",
+                    sprintf("%02d", round(((Tilt_inferred) - floor(Tilt_inferred)) * 60))
+                  ),
+                  Tilt_inferred = ifelse(Tilt_inferred=='NA:NA','',Tilt_inferred)) %>%
     dplyr::mutate(SEASON = 2024, .after = barrel) %>%
     dplyr::relocate(yt_AeroModel, .after = SEASON)
 
@@ -492,7 +524,7 @@ yt_add_team_codes <- function(data) {
                    AwayTeamCode = team_info$bats_team_code[match(data$AwayTeam, team_info$team_FL)],
                    Date = ifelse(grepl("/", data$Date),
                                  format(as.Date(Date, format = "%m/%d/%Y"), "%Y-%m-%d"),
-                                 format(ymd(Date), "%Y-%m-%d")),
+                                 format(lubridate::ymd(Date), "%Y-%m-%d")),
                    Code = n() ) %>%
     arrange(PitchNo)
   return(data)
@@ -510,6 +542,7 @@ yt_add_team_codes <- function(data) {
 yt_add_umpire <- function(data) {
 
   data$Umpire <- umps$Umpire[match(paste0(data$Date,data$HomeTeam),paste0(umps$Date,umps$HomeTeam))]
+  data$Umpire <- sub('Home plate - ',"", sub("\n.*", "", data$Umpire))
 
   return(data)
 }
@@ -631,6 +664,129 @@ game_check <- function(path_to_file) {
   )
 
   return(game_test)
+}
+#
+game_check_db <- function(data, date) {
+  game_test <<- data %>%
+    filter(Date == date) %>%
+    select(PitchNo, Inning, Top.Bottom, PAofInning, PitchofPA, Pitcher, Batter, Balls, Strikes, PitchCall, KorBB, PlayResult) %>%
+    dplyr::group_by(Inning, Top.Bottom, PAofInning) %>%
+    dplyr::mutate(#check = n_distinct(Batter),
+      pa_check = ifelse(n_distinct(Batter) == 1, T, F),
+      pitch_check = ifelse(lag(PitchofPA) < PitchofPA, T, F),
+      count_check = ifelse(paste(Balls, Strikes) != lag(paste(Balls, Strikes)), T,
+                           ifelse(paste(Balls, Strikes) == lag(paste(Balls, Strikes)) & lag(PitchCall) %in% c('Foul'), T, F)),
+    ) %>%
+    ungroup()
+
+  print(
+    game_test %>%
+      dplyr::summarise(pa_check = sum(pa_check == FALSE, na.rm = T),
+                       pitch_check = sum(pitch_check == FALSE, na.rm = T),
+                       count = sum(count_check == FALSE, na.rm = T)
+      )
+  )
+
+  return(game_test)
+}
+
+#
+yt_column_order <- function(data) {
+
+
+  data <- data %>%
+    select("PitchNo", "Date", "Time", "PAofInning", "PitchofPA", "Pitcher",
+           "PitcherId", "PitcherThrows", "PitcherTeam", "Batter", "BatterId",
+           "BatterSide", "BatterTeam", "PitcherSet", "Inning", "Top.Bottom",
+           "Outs", "Balls", "Strikes", "TaggedPitchType", "AutoPitchType",  "PitchClass",
+           "PitchCall", "KorBB", "HitType", "PlayResult", "OutsOnPlay",
+           "RunsScored",  "Notes", "RelSpeed", "SpinRate", "SpinAxis", "SpinAxis_inferred",
+           #"SpinAxis_diff","SpinAxis_diff2",
+           "Tilt", "Tilt_inferred", "RelHeight", "RelSide", "Extension",
+           "VertBreak", "InducedVertBreak", "HorzBreak", "VertRelAngle",
+           "HorzRelAngle",  "PlateLocHeight",
+           "PlateLocSide", "zone_x", "zone_y",  "ZoneSpeed",
+           "VertApprAngle", "HorzApprAngle", "ZoneTime", "ExitSpeed", "Angle",
+           "Direction", "HitSpinRate", "PositionAt110X", "PositionAt110Y",
+           "PositionAt110Z", "Distance", "LastTrackedDistance", "Bearing",
+           "HangTime", "xBA", "x1B",
+           "x2B", "x3B", "xHR", "xOut", "xSLG", "woba_weight", "xwOBACON",
+           "pfxx", "pfxz", "x0", "y0", "z0", "vx0", "vy0", "vz0",
+           "ax0", "ay0", "az0", "Catcher", "CatcherId", "CatcherTeam","Umpire",
+           "HomeTeam", "AwayTeam", "HomeTeamCode", "AwayTeamCode", "Code",  "Stadium", "Level",
+           "League", "GameID", "PitchUUID", "yt_RelSpeed", "yt_RelHeight",
+           "yt_RelSide", "yt_VertRelAngle", "yt_HorzRelAngle", "yt_ZoneSpeed",
+           "yt_PlateLocHeight", "yt_PlateLocSide", "yt_VertApprAngle", "yt_HorzApprAngle",
+           "yt_ZoneTime", "yt_HorzBreak", "yt_InducedVertBreak", "yt_OutOfPlane",
+           "yt_FSRI", "yt_EffectiveSpin", "yt_GyroSpin", "yt_Efficiency",
+           "yt_SpinComponentX", "yt_SpinComponentY", "yt_SpinComponentZ",
+           "yt_HitVelocityX", "yt_HitVelocityY", "yt_HitVelocityZ", "yt_HitLocationX",
+           "yt_HitLocationY", "yt_HitLocationZ", "yt_GroundLocationX", "yt_GroundLocationY",
+           "yt_HitBreakX", "yt_HitBreakY", "yt_HitBreakT", "yt_HitSpinComponentX",
+           "yt_HitSpinComponentY", "yt_HitSpinComponentZ", "yt_SessionName",
+           "Note", "yt_PitchSpinConfidence", "yt_PitchReleaseConfidence",
+           "yt_HitSpinConfidence", "yt_EffectiveBattingSpeed", "yt_ReleaseAccuracy",
+           "yt_ZoneAccuracy", "yt_SeamLat", "yt_SeamLong", "yt_ReleaseDistance","filter_col",
+           "barrel","yt_AeroModel",  "sweetspot",  "HitDirection1", "HitDirection2",
+           "hc_x", "hc_y", "launch_speed", "launch_angle", "bbe", "hardhit", "weakhit",
+           "whiff", "swing", "take", "in_zone",  "SEASON")
+
+  return(data)
+}
+
+yt_event_from_pbp <- function(data, dates_for_pbp){
+
+  pbp_match <- dbGetQuery(db, "select * from pbp24 where date in(:dates)", params = list(dates = dates_for_pbp)) %>%
+    dplyr::mutate(Batter_Last =
+                    dplyr::case_when(
+                      stringr::str_detect(Batter, "\\.") ~ stringr::str_trim(stringr::str_extract(Batter, "(?<=\\.).*")),
+                      stringr::str_detect(Batter, ",") ~ stringr::str_trim(stringr::str_extract(Batter, "^[^,]*")),
+                      T ~ Batter
+                    ),
+                  # EventType = dplyr::case_when(
+                  #   # stringr::word(Event,1) %in% c("struck", "grounded", "singled", "flied","hit", "walked","walked.",
+                  #   #                      "singled", "doubled", "tripled", "homered", "singled.", "doubled.", "tripled.", "homered.",
+                  #   #                      "reached", "popped", "was") ~ 'result',
+                  #   grepl("out|infield|struck|grounded|singled|flied|lined|fouled|hit|walked|singled|double|tripled|homered|reached|popped|was|out on batter's interference", stringr::word(Event,1)) ~ 'result',
+                  #   grepl('pickoff attempt|Failed pickoff attempt.', Event) ~ 'pickoff attempt',
+                  #   grepl('to p',Event) ~ 'sub pitcher',
+                  #   grepl('caught|picked', Event) ~ 'baserunning out',
+                  #   grepl('stole', Event) ~ 'stolen base',
+                  #   grepl('wild pitch|passed ball',Event) |  grepl('advanced',stringr::word(Event,1)) ~ 'base runner advance',
+                  #   grepl('to |pinch ran|pinch ran for',Event) ~ 'sub',
+                  #   grepl('placed on',Event) ~ 'extra innings runner',
+                  #
+                  #   T ~ NA
+                  #
+                  # ),
+                  event_long = paste(Batter, Event)
+    )  %>%
+    dplyr::filter(EventType == 'result')
+
+
+  yt_pbp_match <- data %>%
+    #  dbGetQuery(db, "SELECT * FROM yak_24 where Date in (:dates)", params = list(dates = dates_for_pbp)) %>%
+    dplyr::select(Date,PitchNo,Inning,Top.Bottom,Batter, BatterTeam,
+                  Notes, PitchCall, PlayResult, KorBB,  PAofInning, PitchofPA,  PitchUUID) %>%
+    dplyr::group_by(Date,Inning,Batter, PAofInning) %>%
+    dplyr::filter(PitchofPA == last(PitchofPA)) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(Note = stringr::str_to_title(sub("^[^ ]* ", "", Batter)))  %>%
+    rowwise() %>%
+    dplyr::mutate(Notes = ifelse(
+      any(idx <- Date == pbp_match$Date &
+            Inning == pbp_match$Inning &
+            `Top.Bottom` == pbp_match$Top.Bottom &
+            stringr::str_detect(Note, pbp_match$Batter_Last)),
+      pbp_match$event_long[idx][1],
+      NA_character_)
+    ) %>%
+    dplyr::ungroup()
+
+  data$Notes <- yt_pbp_match$Notes[match(data$PitchUUID, yt_pbp_match$PitchUUID)]
+
+  return(data)
+  any
 }
 
 # MODELS ----
