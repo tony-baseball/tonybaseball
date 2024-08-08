@@ -561,7 +561,7 @@ yt_transform_file <- function(data) {
                  "D'amato" = "D'Amato",
                  'Decarlo' = 'DeCarlo',
                  'Dagenais' = 'Dagenias',
-                 'Mcilwain' = 'McIlwain',
+                 'Mcilwain' = 'McIlwain'
 
                )
              )
